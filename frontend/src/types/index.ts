@@ -17,11 +17,11 @@ export type {
   CreatePersonaRequest,
   UpdateBustaPagaRequest,
   UpdateTimecardRequest,
-} from "../../shared/types";
+} from "@shared/types";
 
 export {
   tipoFromRuolo,
   RUOLO_LABELS,
   RENDICONTAZIONE_LABELS,
   DOCUMENT_STATUS_LABELS,
-} from "../../shared/types";
+} from "@shared/types";
