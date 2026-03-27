@@ -1,18 +1,29 @@
+export interface Person {
+  id: string;
+  name: string;
+  role?: string;
+  hints?: string[];
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  logo?: string;
+  signatories: Person[];
+  workers: Person[];
+  createdAt: string;
+}
+
+export interface CreateProjectRequest {
+  name: string;
+  signatories: Omit<Person, "id">[];
+  workers: Omit<Person, "id">[];
+}
+
 export interface FileResult {
   id: string;
   filename: string;
   category: string;
-}
-
-export interface Category {
-  name: string;
-  folder: string;
-  hints: string[];
-}
-
-export interface RulesConfig {
-  description: string;
-  categories: Category[];
 }
 
 export interface ConfirmRequest {

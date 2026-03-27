@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { RulesConfig } from "../../shared/types.js";
+import type { Person } from "../../shared/types.js";
 
 const client = new Anthropic();
 
@@ -7,25 +7,28 @@ type ContentBlock = Anthropic.Messages.ContentBlockParam;
 
 export async function classify(
   contentBlocks: ContentBlock[],
-  rules: RulesConfig,
+  workers: Person[],
   fileName: string,
 ): Promise<string> {
-  const categoriesText = rules.categories
-    .map((cat) => `- ${cat.name}: ${cat.hints.join(", ")}`)
+  const workersText = workers
+    .map((w) => {
+      const extra = w.hints?.length ? `: ${w.hints.join(", ")}` : "";
+      return `- ${w.name}${extra}`;
+    })
     .join("\n");
 
   const prompt: ContentBlock = {
     type: "text",
     text: [
-      "Classify this document into one of these categories:",
+      "Classify this document by assigning it to one of these workers:",
       "",
-      categoriesText,
+      workersText,
       "",
-      'If the document doesn\'t clearly match any category, respond with "unclassified".',
+      'If the document doesn\'t clearly match any worker, respond with "unclassified".',
       "",
       `Document filename: ${fileName}`,
       "",
-      "Respond with ONLY the exact category name, nothing else.",
+      "Respond with ONLY the exact worker name, nothing else.",
     ].join("\n"),
   };
 
@@ -40,9 +43,8 @@ export async function classify(
       ? response.content[0].text.trim()
       : "unclassified";
 
-  // Match against known categories (case-insensitive)
-  const match = rules.categories.find(
-    (cat) => cat.name.toLowerCase() === result.toLowerCase(),
+  const match = workers.find(
+    (w) => w.name.toLowerCase() === result.toLowerCase(),
   );
   return match ? match.name : "unclassified";
 }

@@ -1,6 +1,8 @@
 export type {
+  Person,
+  Project,
+  CreateProjectRequest,
   FileResult,
-  Category,
   ConfirmRequest,
   ConfirmResponse,
 } from "../../shared/types";

@@ -1,8 +1,8 @@
-import type { FileResult, Category } from "../types";
+import type { FileResult, Person } from "../types";
 
 interface ResultsTableProps {
   results: FileResult[];
-  categories: Category[];
+  workers: Person[];
   onCategoryChange: (id: string, category: string) => void;
   onConfirm: () => void;
   onReset: () => void;
@@ -11,7 +11,7 @@ interface ResultsTableProps {
 
 export function ResultsTable({
   results,
-  categories,
+  workers,
   onCategoryChange,
   onConfirm,
   onReset,
@@ -47,9 +47,9 @@ export function ResultsTable({
                       : "border-gray-300"
                   }`}
                 >
-                  {categories.map((cat) => (
-                    <option key={cat.name} value={cat.name}>
-                      {cat.name}
+                  {workers.map((w) => (
+                    <option key={w.id} value={w.name}>
+                      {w.name}
                     </option>
                   ))}
                   <option value="unclassified">Unclassified</option>
