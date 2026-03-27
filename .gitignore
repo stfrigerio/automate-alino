@@ -1,8 +1,14 @@
-input/*
-!input/.gitkeep
+# Data
+uploads/
 output/*
 !output/.gitkeep
+
+# Python
 .env
 __pycache__/
 *.pyc
 .venv/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/

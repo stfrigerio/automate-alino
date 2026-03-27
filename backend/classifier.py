@@ -16,7 +16,7 @@ def classify(content_blocks: list[dict], rules: dict, file_name: str) -> str:
         "text": (
             f"Classify this document into one of these categories:\n\n"
             f"{categories_text}\n\n"
-            f"If the document doesn't clearly match any category, respond with \"unclassified\".\n\n"
+            f'If the document doesn\'t clearly match any category, respond with "unclassified".\n\n'
             f"Document filename: {file_name}\n\n"
             f"Respond with ONLY the exact category name, nothing else."
         ),
@@ -30,7 +30,6 @@ def classify(content_blocks: list[dict], rules: dict, file_name: str) -> str:
 
     result = response.content[0].text.strip()
 
-    # Fuzzy match against known categories
     for name in category_names:
         if result.lower() == name.lower():
             return name
