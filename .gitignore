@@ -3,12 +3,9 @@ uploads/
 output/*
 !output/.gitkeep
 
-# Python
+# Env
 .env
-__pycache__/
-*.pyc
-.venv/
 
-# Frontend
-frontend/node_modules/
-frontend/dist/
+# Node
+node_modules/
+dist/
