@@ -3,9 +3,16 @@ import { useCallback, useState } from "react";
 interface DropZoneProps {
   onFilesSelected: (files: File[]) => void;
   disabled?: boolean;
+  label?: string;
+  sublabel?: string;
 }
 
-export function DropZone({ onFilesSelected, disabled }: DropZoneProps) {
+export function DropZone({
+  onFilesSelected,
+  disabled,
+  label = "Trascina i file qui o clicca per selezionare",
+  sublabel = "PDF, immagini, file di testo",
+}: DropZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -47,17 +54,13 @@ export function DropZone({ onFilesSelected, disabled }: DropZoneProps) {
       onDrop={handleDrop}
       onClick={handleClick}
       className={`
-        border-2 border-dashed rounded-xl p-16 text-center cursor-pointer transition-colors
+        border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors
         ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"}
         ${disabled ? "opacity-50 cursor-not-allowed" : ""}
       `}
     >
-      <p className="text-lg text-gray-600">
-        Drop files here or click to select
-      </p>
-      <p className="text-sm text-gray-400 mt-2">
-        PDF, images, text files
-      </p>
+      <p className="text-lg text-gray-600">{label}</p>
+      <p className="text-sm text-gray-400 mt-2">{sublabel}</p>
     </div>
   );
 }
