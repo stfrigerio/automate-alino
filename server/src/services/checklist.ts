@@ -4,7 +4,7 @@ import type {
   DocumentoRichiesto,
   Persona,
   RendicontazioneMode,
-} from "../../../shared/types.js";
+} from "../../../shared/types.ts";
 
 interface DocTemplate {
   categoria: DocumentCategory;

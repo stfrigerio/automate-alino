@@ -44,6 +44,10 @@ export default function NewProject() {
       setError("Nome e codice progetto sono obbligatori.");
       return;
     }
+    if (dataInizio && dataFine && dataInizio > dataFine) {
+      setError("La data di inizio non può essere successiva alla data di fine.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {

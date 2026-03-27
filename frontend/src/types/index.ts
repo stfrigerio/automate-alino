@@ -24,4 +24,4 @@ export {
   RUOLO_LABELS,
   RENDICONTAZIONE_LABELS,
   DOCUMENT_STATUS_LABELS,
-} from "@shared/types";
+} from "../helpers";

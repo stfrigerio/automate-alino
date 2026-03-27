@@ -8,7 +8,7 @@ import { join } from "path";
 import db from "./db.js";
 import { parsePayslip, matchPersona } from "./services/parser.js";
 import { generateChecklist } from "./services/checklist.js";
-import { tipoFromRuolo } from "../../shared/types.js";
+import { tipoFromRuolo } from "./helpers.js";
 import type {
   CreateProjectRequest,
   CreatePersonaRequest,
@@ -19,7 +19,7 @@ import type {
   Timecard,
   DocumentoRichiesto,
   Project,
-} from "../../shared/types.js";
+} from "../../shared/types.ts";
 
 const ROOT = join(import.meta.dirname, "../..");
 const DATA_DIR = join(ROOT, "data");
