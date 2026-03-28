@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { getPersone, createPersona, deletePersona } from "../../api/client";
+import { useNavigate } from "react-router-dom";
+import { getPersone, createPersona, updatePersona, deletePersona } from "../../api/client";
 import { RUOLO_LABELS } from "../../types";
 import type { Persona, RuoloPersonale } from "../../types";
+import { Trash2, Users, ExternalLink } from "lucide-react";
+import EditableText from "../../components/EditableText";
+import EditableSelect from "../../components/EditableSelect";
+import { Badge } from "../../components/Badge";
+import { EmptyState } from "../../components/EmptyState";
+import styles from "./PersoneTab.module.css";
 
 export default function PersoneTab({ projectId }: { projectId: string }) {
+  const navigate = useNavigate();
   const [persone, setPersone] = useState<Persona[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [nome, setNome] = useState("");
@@ -11,6 +19,7 @@ export default function PersoneTab({ projectId }: { projectId: string }) {
   const [ruolo, setRuolo] = useState<RuoloPersonale>("docente_interno");
   const [incarico, setIncarico] = useState("");
   const [costo, setCosto] = useState("");
+  const [orePreviste, setOrePreviste] = useState("");
 
   const load = () => getPersone(projectId).then(setPersone);
   useEffect(() => { load(); }, [projectId]);
@@ -23,9 +32,15 @@ export default function PersoneTab({ projectId }: { projectId: string }) {
       ruolo,
       numero_incarico: incarico.trim() || undefined,
       costo_orario: costo ? parseFloat(costo) : undefined,
+      ore_previste: orePreviste ? parseFloat(orePreviste) : undefined,
     });
-    setNome(""); setCognome(""); setIncarico(""); setCosto("");
+    setNome(""); setCognome(""); setIncarico(""); setCosto(""); setOrePreviste("");
     setShowForm(false);
+    load();
+  };
+
+  const patch = async (id: string, data: Parameters<typeof updatePersona>[2]) => {
+    await updatePersona(projectId, id, data);
     load();
   };
 
@@ -36,65 +51,101 @@ export default function PersoneTab({ projectId }: { projectId: string }) {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="font-semibold">Persone ({persone.length})</h2>
-        <button onClick={() => setShowForm(!showForm)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700">
+      <div className={styles.header}>
+        <h2 className={styles.title}>Persone ({persone.length})</h2>
+        <button onClick={() => setShowForm(!showForm)} className={styles.addButton}>
           + Aggiungi persona
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-sm" />
-            <input type="text" placeholder="Cognome" value={cognome} onChange={(e) => setCognome(e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-sm" />
+        <div className={styles.form}>
+          <div className={styles.gridTwo}>
+            <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} className={styles.input} />
+            <input type="text" placeholder="Cognome" value={cognome} onChange={(e) => setCognome(e.target.value)} className={styles.input} />
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <select value={ruolo} onChange={(e) => setRuolo(e.target.value as RuoloPersonale)} className="border border-gray-300 rounded px-3 py-1.5 text-sm">
+          <div className={styles.gridThree}>
+            <select value={ruolo} onChange={(e) => setRuolo(e.target.value as RuoloPersonale)} className={styles.input}>
               {Object.entries(RUOLO_LABELS).map(([v, l]) => (
                 <option key={v} value={v}>{l}</option>
               ))}
             </select>
-            <input type="text" placeholder="N. incarico" value={incarico} onChange={(e) => setIncarico(e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-sm" />
-            <input type="text" placeholder="Costo orario (EUR)" value={costo} onChange={(e) => setCosto(e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-sm" />
+            <input type="text" placeholder="N. incarico" value={incarico} onChange={(e) => setIncarico(e.target.value)} className={styles.input} />
+            <input type="text" placeholder="Costo orario (EUR)" value={costo} onChange={(e) => setCosto(e.target.value)} className={styles.input} />
           </div>
-          <div className="flex gap-2">
-            <button onClick={handleAdd} className="bg-blue-600 text-white px-4 py-1.5 rounded text-sm hover:bg-blue-700">Salva</button>
-            <button onClick={() => setShowForm(false)} className="border border-gray-300 px-4 py-1.5 rounded text-sm hover:bg-gray-100">Annulla</button>
+          <div className={styles.gridTwo}>
+            <input type="number" placeholder="Ore previste" value={orePreviste} onChange={(e) => setOrePreviste(e.target.value)} className={styles.input} />
+          </div>
+          <div className={styles.formButtons}>
+            <button onClick={handleAdd} className={styles.saveButton}>Salva</button>
+            <button onClick={() => setShowForm(false)} className={styles.cancelButton}>Annulla</button>
           </div>
         </div>
       )}
 
       {persone.length === 0 ? (
-        <p className="text-gray-500 text-sm">Nessuna persona aggiunta.</p>
+        <EmptyState icon={Users}>Nessuna persona aggiunta.</EmptyState>
       ) : (
-        <table className="w-full text-sm border-collapse">
+        <table className={styles.table}>
           <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left p-2 font-medium text-gray-600">Nome</th>
-              <th className="text-left p-2 font-medium text-gray-600">Ruolo</th>
-              <th className="text-left p-2 font-medium text-gray-600">Tipo</th>
-              <th className="text-left p-2 font-medium text-gray-600">N. Incarico</th>
-              <th className="text-right p-2 font-medium text-gray-600">Costo/h</th>
-              <th className="p-2"></th>
+            <tr className={styles.tableHead}>
+              <th className={styles.th}>Cognome</th>
+              <th className={styles.th}>Nome</th>
+              <th className={styles.th}>Ruolo</th>
+              <th className={styles.th}>Tipo</th>
+              <th className={styles.th}>N. Incarico</th>
+              <th className={styles.thRight}>Ore prev.</th>
+              <th className={styles.thRight}>Costo/h</th>
+              <th className={styles.th}></th>
             </tr>
           </thead>
           <tbody>
             {persone.map((p) => (
-              <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="p-2 font-medium">{p.cognome} {p.nome}</td>
-                <td className="p-2 text-gray-500">{RUOLO_LABELS[p.ruolo]}</td>
-                <td className="p-2">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${p.tipo === "interno" ? "bg-green-100 text-green-700" : "bg-purple-100 text-purple-700"}`}>
+              <tr key={p.id} className={styles.row}>
+                <td className={styles.td}>
+                  <EditableText value={p.cognome} onSave={(v) => patch(p.id, { cognome: v })} />
+                </td>
+                <td className={styles.td}>
+                  <EditableText value={p.nome} onSave={(v) => patch(p.id, { nome: v })} />
+                </td>
+                <td className={styles.td}>
+                  <EditableSelect value={p.ruolo} options={RUOLO_LABELS} onSave={(v) => patch(p.id, { ruolo: v })} />
+                </td>
+                <td className={styles.td}>
+                  <Badge variant={p.tipo === "interno" ? "success" : "accent"}>
                     {p.tipo}
-                  </span>
+                  </Badge>
                 </td>
-                <td className="p-2 text-gray-500">{p.numero_incarico ?? "—"}</td>
-                <td className="p-2 text-right text-gray-500">
-                  {p.costo_orario ? `${p.costo_orario.toFixed(2)} EUR` : "—"}
+                <td className={styles.td}>
+                  <EditableText value={p.numero_incarico ?? ""} onSave={(v) => patch(p.id, { numero_incarico: v || undefined })} />
                 </td>
-                <td className="p-2 text-right">
-                  <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:text-red-600 text-xs">Rimuovi</button>
+                <td className={styles.td}>
+                  <EditableText
+                    value={p.ore_previste != null ? String(p.ore_previste) : ""}
+                    onSave={(v) => patch(p.id, { ore_previste: v ? parseFloat(v) : undefined })}
+                    alignRight
+                  />
+                </td>
+                <td className={styles.td}>
+                  <EditableText
+                    value={p.costo_orario != null ? p.costo_orario.toFixed(2) : ""}
+                    onSave={(v) => patch(p.id, { costo_orario: v ? parseFloat(v) : undefined })}
+                    alignRight
+                  />
+                </td>
+                <td className={styles.tdActions}>
+                  {p.lavoratore_id && (
+                    <button
+                      onClick={() => navigate(`/lavoratori/${p.lavoratore_id}`)}
+                      className={styles.navButton}
+                      title="Vai alla scheda lavoratore"
+                    >
+                      <ExternalLink size={14} />
+                    </button>
+                  )}
+                  <button onClick={() => handleDelete(p.id)} className={styles.deleteButton} title="Rimuovi">
+                    <Trash2 size={16} />
+                  </button>
                 </td>
               </tr>
             ))}

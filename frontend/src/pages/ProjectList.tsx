@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { getProjects } from "../api/client";
 import { RENDICONTAZIONE_LABELS } from "../types";
 import type { Project } from "../types";
+import { motion } from "motion/react";
+import styles from "./ProjectList.module.css";
 
 export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -16,46 +18,49 @@ export default function ProjectList() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">Progetti</h1>
-        <Link
-          to="/projects/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium"
-        >
+      <div className={styles.header}>
+        <h1 className={styles.title}>Progetti</h1>
+        <Link to="/projects/new" className={styles.newButton}>
           Nuovo Progetto
         </Link>
       </div>
 
-      {loading && <p className="text-gray-500">Caricamento...</p>}
+      {loading && <p className={styles.empty}>Caricamento...</p>}
 
       {!loading && projects.length === 0 && (
-        <p className="text-gray-500">
+        <p className={styles.empty}>
           Nessun progetto. Creane uno per iniziare.
         </p>
       )}
 
-      <div className="grid gap-4">
-        {projects.map((p) => (
-          <Link
+      <div className={styles.grid}>
+        {projects.map((p, i) => (
+          <motion.div
             key={p.id}
-            to={`/projects/${p.id}`}
-            className="block border border-gray-200 rounded-lg p-5 hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="font-semibold text-lg">{p.nome}</h2>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {p.codice_progetto}
-                </p>
+            <Link to={`/projects/${p.id}`} className={styles.card}>
+              <div className={styles.cardTop}>
+                <div>
+                  <h2 className={styles.cardName}>{p.nome}</h2>
+                  <p className={styles.cardCode}>{p.codice_progetto}</p>
+                </div>
+                <div className={styles.cardBadges}>
+                  {p.tipologia_nome && (
+                    <span className={styles.cardBadgeTipologia}>{p.tipologia_nome}</span>
+                  )}
+                  <span className={styles.cardBadge}>
+                    {RENDICONTAZIONE_LABELS[p.modalita_rendicontazione]}
+                  </span>
+                </div>
               </div>
-              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                {RENDICONTAZIONE_LABELS[p.modalita_rendicontazione]}
-              </span>
-            </div>
-            {p.ente_agenzia && (
-              <p className="text-sm text-gray-400 mt-2">{p.ente_agenzia}</p>
-            )}
-          </Link>
+              {p.ente_agenzia && (
+                <p className={styles.cardEnte}>{p.ente_agenzia}</p>
+              )}
+            </Link>
+          </motion.div>
         ))}
       </div>
     </div>

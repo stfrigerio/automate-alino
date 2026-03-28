@@ -1,0 +1,64 @@
+.nav {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.125rem;
+	font-size: var(--font-size-sm);
+	background: var(--color-background-tertiary);
+	padding: 0.3rem 0.375rem;
+	border-radius: var(--radius-full);
+}
+
+.link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	color: var(--color-text-tertiary);
+	padding: 0.2rem 0.5rem;
+	border-radius: var(--radius-full);
+	transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.link:hover {
+	color: var(--color-primary);
+	background: var(--color-background-secondary);
+}
+
+.iconOnly {
+	padding: 0.3rem;
+}
+
+.linkIcon {
+	width: 0.875rem;
+	height: 0.875rem;
+	flex-shrink: 0;
+}
+
+.separator {
+	color: var(--color-border-hover);
+	width: 0.75rem;
+	height: 0.75rem;
+	flex-shrink: 0;
+}
+
+.current {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	color: var(--color-primary);
+	font-weight: var(--font-weight-medium);
+	padding: 0.2rem 0.625rem;
+	background: var(--color-background-secondary);
+	border-radius: var(--radius-full);
+	box-shadow: var(--shadow-sm);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 20rem;
+}
+
+.currentIcon {
+	width: 0.875rem;
+	height: 0.875rem;
+	flex-shrink: 0;
+	opacity: 0.6;
+}

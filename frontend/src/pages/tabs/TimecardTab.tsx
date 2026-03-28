@@ -1,13 +1,23 @@
 import { useEffect, useState } from "react";
 import { getTimecards } from "../../api/client";
 import type { Timecard } from "../../types";
+import { Clock } from "lucide-react";
+import { Badge } from "../../components/Badge";
+import { EmptyState } from "../../components/EmptyState";
+import styles from "./TimecardTab.module.css";
 
-type TimecardRow = Timecard & { persona_nome: string; persona_cognome: string };
+type TimecardRow = Timecard & {
+  persona_nome: string;
+  persona_cognome: string;
+  ore_previste?: number;
+};
 
-const STATO_BADGE: Record<string, { cls: string; label: string }> = {
-  bozza: { cls: "bg-gray-100 text-gray-600", label: "Bozza" },
-  generata: { cls: "bg-blue-100 text-blue-700", label: "Generata" },
-  firmata: { cls: "bg-green-100 text-green-700", label: "Firmata" },
+type BadgeVariant = "neutral" | "info" | "success";
+
+const STATO_BADGE: Record<string, { variant: BadgeVariant; label: string }> = {
+  bozza: { variant: "neutral", label: "Bozza" },
+  generata: { variant: "info", label: "Generata" },
+  firmata: { variant: "success", label: "Firmata" },
 };
 
 export default function TimecardTab({ projectId }: { projectId: string }) {
@@ -19,46 +29,48 @@ export default function TimecardTab({ projectId }: { projectId: string }) {
 
   if (timecards.length === 0) {
     return (
-      <p className="text-gray-500 text-sm">
+      <EmptyState icon={Clock}>
         Nessuna timecard. Le timecard vengono create automaticamente quando carichi le buste paga.
-      </p>
+      </EmptyState>
     );
   }
 
   return (
     <div>
-      <h2 className="font-semibold mb-4">Timecard ({timecards.length})</h2>
+      <h2 className={styles.title}>Timecard ({timecards.length})</h2>
 
-      <table className="w-full text-sm border-collapse">
+      <table className={styles.table}>
         <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left p-2 font-medium text-gray-600">Persona</th>
-            <th className="text-left p-2 font-medium text-gray-600">Mese</th>
-            <th className="text-right p-2 font-medium text-gray-600">Ore totali</th>
-            <th className="text-right p-2 font-medium text-gray-600">Righe compilate</th>
-            <th className="text-left p-2 font-medium text-gray-600">Stato</th>
+          <tr className={styles.tableHead}>
+            <th className={styles.th}>Persona</th>
+            <th className={styles.th}>Mese</th>
+            <th className={styles.thRight}>Ore</th>
+            <th className={styles.th}>Stato</th>
           </tr>
         </thead>
         <tbody>
           {timecards.map((tc) => {
             const badge = STATO_BADGE[tc.stato] ?? STATO_BADGE.bozza;
-            const oreRighe = tc.righe.reduce((sum, r) => sum + r.ore, 0);
+            const orePreviste = tc.ore_previste ?? null;
             return (
-              <tr key={tc.id} className="border-b border-gray-100 hover:bg-gray-50">
-                <td className="p-2 font-medium">
+              <tr key={tc.id} className={styles.row}>
+                <td className={styles.tdBold}>
                   {tc.persona_cognome} {tc.persona_nome}
                 </td>
-                <td className="p-2 text-gray-500">{tc.mese}</td>
-                <td className="p-2 text-right">{tc.ore_totali}</td>
-                <td className="p-2 text-right">
-                  <span className={oreRighe < tc.ore_totali ? "text-amber-600" : "text-green-600"}>
-                    {oreRighe} / {tc.ore_totali}
+                <td className={styles.tdMuted}>{tc.mese}</td>
+                <td className={styles.tdRight}>
+                  <span className={orePreviste != null && tc.ore_totali >= orePreviste ? styles.oreOk : orePreviste != null ? styles.oreIncomplete : ""}>
+                    {tc.ore_totali}h
                   </span>
+                  {orePreviste != null && (
+                    <>
+                      <span className={styles.oreSeparator}>/</span>
+                      <span className={styles.oreTotal}>{orePreviste}h</span>
+                    </>
+                  )}
                 </td>
-                <td className="p-2">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${badge.cls}`}>
-                    {badge.label}
-                  </span>
+                <td className={styles.td}>
+                  <Badge variant={badge.variant}>{badge.label}</Badge>
                 </td>
               </tr>
             );

@@ -1,20 +1,28 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ProjectList from "./pages/ProjectList";
+import Homepage from "./pages/Homepage";
 import NewProject from "./pages/NewProject";
 import ProjectView from "./pages/ProjectView";
+import LavoratoreView from "./pages/LavoratoreView";
+import DocumentiArchivio from "./pages/DocumentiArchivio";
+import { NotificationProvider } from "./context/NotificationContext";
+import styles from "./App.module.css";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto py-12 px-4">
-          <Routes>
-            <Route path="/" element={<ProjectList />} />
-            <Route path="/projects/new" element={<NewProject />} />
-            <Route path="/projects/:id" element={<ProjectView />} />
-          </Routes>
+    <NotificationProvider>
+      <BrowserRouter>
+        <div className={styles.layout}>
+          <div className={styles.container}>
+            <Routes>
+              <Route path="/" element={<Homepage />} />
+              <Route path="/projects/new" element={<NewProject />} />
+              <Route path="/projects/:id" element={<ProjectView />} />
+              <Route path="/lavoratori/:id" element={<LavoratoreView />} />
+              <Route path="/documenti" element={<DocumentiArchivio />} />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
+    </NotificationProvider>
   );
 }

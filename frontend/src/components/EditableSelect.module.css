@@ -1,0 +1,29 @@
+.wrapper {
+	display: inline-flex;
+	min-width: 0;
+	width: 100%;
+}
+
+.select {
+	width: 100%;
+	background: transparent;
+	font: inherit;
+	color: inherit;
+	border: 1px solid transparent;
+	border-radius: var(--radius-sm);
+	padding: 0.25rem var(--spacing-sm);
+	margin: -0.25rem calc(-1 * var(--spacing-sm));
+	outline: none;
+	cursor: pointer;
+	appearance: none;
+	transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.select:hover {
+	border-color: var(--color-border);
+}
+
+.select:focus {
+	border-color: var(--color-border-focus);
+	box-shadow: 0 0 0 2px var(--color-primary-bg);
+}

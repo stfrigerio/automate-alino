@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { extname } from "path";
 import pdf from "pdf-parse";
+import mammoth from "mammoth";
 import type Anthropic from "@anthropic-ai/sdk";
 
 type ContentBlock = Anthropic.Messages.ContentBlockParam;
@@ -31,6 +32,13 @@ export async function readFile(filePath: string): Promise<ContentBlock[] | null>
   if (ext === ".pdf") {
     const buffer = readFileSync(filePath);
     const { text } = await pdf(buffer);
+    if (!text.trim()) return null;
+    return [{ type: "text", text }];
+  }
+
+  if (ext === ".docx") {
+    const buffer = readFileSync(filePath);
+    const { value: text } = await mammoth.extractRawText({ buffer });
     if (!text.trim()) return null;
     return [{ type: "text", text }];
   }

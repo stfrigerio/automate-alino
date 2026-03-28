@@ -1,0 +1,21 @@
+.empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--spacing-sm);
+	padding: var(--spacing-2xl) var(--spacing-md);
+	color: var(--color-text-muted);
+	text-align: center;
+}
+
+.icon {
+	width: 2.5rem;
+	height: 2.5rem;
+	opacity: 0.4;
+}
+
+.text {
+	font-size: var(--font-size-sm);
+	max-width: 28rem;
+	line-height: 1.6;
+}

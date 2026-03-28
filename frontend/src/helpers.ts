@@ -1,4 +1,4 @@
-import type { RuoloPersonale, TipoPersonale, RendicontazioneMode, DocumentStatus } from "./types";
+import type { RuoloPersonale, TipoPersonale, RendicontazioneMode, DocumentStatus, CategoriaOreNonProgetto } from "./types";
 
 const RUOLI_ESTERNI: RuoloPersonale[] = [
   "docente_esterno",
@@ -32,4 +32,13 @@ export const DOCUMENT_STATUS_LABELS: Record<DocumentStatus, string> = {
   mancante: "Mancante",
   caricato: "Caricato",
   verificato: "Verificato",
+};
+
+export const ORE_NON_PROGETTO_LABELS: Record<CategoriaOreNonProgetto, string> = {
+  riunioni: "Riunioni",
+  formazione: "Formazione",
+  malattia: "Malattia",
+  ferie: "Ferie",
+  permessi: "Permessi",
+  altro: "Altro",
 };

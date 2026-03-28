@@ -1,0 +1,11 @@
+.layout {
+	min-height: 100vh;
+	background: var(--color-background);
+	transition: background var(--transition-base);
+}
+
+.container {
+	max-width: 56rem;
+	margin: 0 auto;
+	padding: var(--spacing-xl) var(--spacing-md) var(--spacing-3xl);
+}

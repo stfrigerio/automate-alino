@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getProject } from "../api/client";
 import { RENDICONTAZIONE_LABELS } from "../types";
 import type { Project } from "../types";
 import PanoramicaTab from "./tabs/PanoramicaTab";
 import PersoneTab from "./tabs/PersoneTab";
-import BustePagaTab from "./tabs/BustePagaTab";
 import TimecardTab from "./tabs/TimecardTab";
 import DocumentiTab from "./tabs/DocumentiTab";
+import { Breadcrumb } from "../components/Breadcrumb";
+import NavControls from "../components/NavControls";
+import { AnimatePresence, motion } from "motion/react";
+import { LayoutDashboard, Users, Clock, FileCheck, FolderKanban, Building2, Calendar } from "lucide-react";
+import { Badge } from "../components/Badge";
+import styles from "./ProjectView.module.css";
 
 const TABS = [
-  { id: "panoramica", label: "Panoramica" },
-  { id: "persone", label: "Persone" },
-  { id: "buste-paga", label: "Buste Paga" },
-  { id: "timecard", label: "Timecard" },
-  { id: "documenti", label: "Documenti" },
+  { id: "panoramica", label: "Panoramica", icon: LayoutDashboard },
+  { id: "persone", label: "Persone", icon: Users },
+  { id: "documenti", label: "Documenti", icon: FileCheck },
+  { id: "timecard", label: "Timecard", icon: Clock },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -28,52 +32,104 @@ export default function ProjectView() {
     if (id) getProject(id).then(setProject).catch(console.error);
   }, [id]);
 
-  if (!project) return <p className="text-gray-500">Caricamento...</p>;
+  if (!project) return <p className={styles.loading}>Caricamento...</p>;
 
   return (
     <div>
-      <Link to="/" className="text-sm text-blue-600 hover:underline">
-        &larr; Tutti i progetti
-      </Link>
+      <Breadcrumb
+        items={[
+          { label: "Progetti", to: "/" },
+          { label: project.nome },
+        ]}
+        end={<NavControls />}
+      />
 
-      <div className="flex items-start justify-between mt-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">{project.nome}</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {project.codice_progetto}
-            <span className="mx-2">&middot;</span>
-            <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs">
-              {RENDICONTAZIONE_LABELS[project.modalita_rendicontazione]}
-            </span>
-          </p>
+      <motion.div
+        className={styles.header}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className={styles.headerTop}>
+          <div className={styles.headerIcon}>
+            <FolderKanban className={styles.headerIconSvg} />
+          </div>
+          <div className={styles.headerInfo}>
+            <h1 className={styles.projectName}>{project.nome}</h1>
+            <p className={styles.projectCode}>{project.codice_progetto}</p>
+            <div className={styles.badges}>
+              <Badge variant="info">{RENDICONTAZIONE_LABELS[project.modalita_rendicontazione]}</Badge>
+              {project.tipologia_nome && <Badge variant="success">{project.tipologia_nome}</Badge>}
+            </div>
+          </div>
+        </div>
+
+        {(project.ente_agenzia || project.data_inizio || project.data_fine) && (
+          <>
+            <div className={styles.headerDivider} />
+            <div className={styles.headerMeta}>
+              {project.ente_agenzia && (
+                <div className={styles.metaItem}>
+                  <Building2 className={styles.metaIcon} />
+                  <span className={styles.metaValue}>{project.ente_agenzia}</span>
+                </div>
+              )}
+              {project.data_inizio && (
+                <div className={styles.metaItem}>
+                  <Calendar className={styles.metaIcon} />
+                  <span className={styles.metaValue}>
+                    {project.data_inizio}
+                    {project.data_fine && ` — ${project.data_fine}`}
+                  </span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </motion.div>
+
+      <div className={styles.tabBar}>
+        <div className={styles.tabList}>
+          {TABS.map((t) => {
+            const Icon = t.icon;
+            const isActive = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`${styles.tab} ${isActive ? styles.tabActive : ""}`}
+              >
+                {isActive && (
+                  <motion.div
+                    className={styles.tabIndicator}
+                    layoutId="tabIndicator"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <span className={styles.tabContent}>
+                  <Icon className={styles.tabIcon} />
+                  {t.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
-        <div className="flex gap-1">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${
-                tab === t.id
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tab Content */}
-      {tab === "panoramica" && <PanoramicaTab project={project} />}
-      {tab === "persone" && <PersoneTab projectId={project.id} />}
-      {tab === "buste-paga" && <BustePagaTab projectId={project.id} />}
-      {tab === "timecard" && <TimecardTab projectId={project.id} />}
-      {tab === "documenti" && <DocumentiTab projectId={project.id} />}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.2 }}
+        >
+          {tab === "panoramica" && <PanoramicaTab project={project} onProjectUpdated={setProject} />}
+          {tab === "persone" && <PersoneTab projectId={project.id} />}
+          {tab === "documenti" && <DocumentiTab projectId={project.id} />}
+          {tab === "timecard" && <TimecardTab projectId={project.id} />}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

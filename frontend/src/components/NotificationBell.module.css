@@ -1,0 +1,206 @@
+/* ── Bell button ── */
+.bellButton {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border: none;
+	background: none;
+	cursor: pointer;
+	color: var(--color-text-secondary);
+	border-radius: var(--radius-md);
+	transition: color var(--transition-fast), background var(--transition-fast);
+	flex-shrink: 0;
+}
+
+.bellButton:hover {
+	color: var(--color-text);
+	background: var(--color-background-tertiary);
+}
+
+/* ── Unread badge ── */
+.badge {
+	position: absolute;
+	top: 0.125rem;
+	right: 0.125rem;
+	background: var(--color-primary);
+	color: var(--color-text-inverse);
+	font-size: 0.5rem;
+	font-weight: var(--font-weight-bold);
+	min-width: 0.875rem;
+	height: 0.875rem;
+	border-radius: var(--radius-full);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 0.2rem;
+	line-height: 1;
+	pointer-events: none;
+}
+
+/* ── Backdrop ── */
+.backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: calc(var(--z-modal) - 1);
+}
+
+/* ── Panel ── */
+.panel {
+	position: fixed;
+	z-index: var(--z-modal);
+	background: var(--color-background-secondary);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-xl);
+	width: 20rem;
+	max-height: 28rem;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* ── Panel header ── */
+.panelHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--spacing-sm) var(--spacing-md);
+	border-bottom: 1px solid var(--color-border);
+	flex-shrink: 0;
+}
+
+.panelTitle {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-text);
+}
+
+.panelActions {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-xs);
+}
+
+.actionButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.25rem;
+	border: none;
+	background: none;
+	cursor: pointer;
+	color: var(--color-text-tertiary);
+	border-radius: var(--radius-sm);
+	transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.actionButton:hover {
+	color: var(--color-text);
+	background: var(--color-background-tertiary);
+}
+
+/* ── Empty state ── */
+.empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--spacing-sm);
+	padding: var(--spacing-2xl) var(--spacing-md);
+	color: var(--color-text-muted);
+	font-size: var(--font-size-sm);
+}
+
+/* ── List ── */
+.list {
+	overflow-y: auto;
+	flex: 1;
+}
+
+/* ── Item ── */
+.item {
+	padding: var(--spacing-sm) var(--spacing-md);
+	border-bottom: 1px solid var(--color-background-tertiary);
+	border-left: 3px solid transparent;
+	transition: background var(--transition-fast);
+}
+
+.item:last-child {
+	border-bottom: none;
+}
+
+.item:hover {
+	background: var(--color-background-tertiary);
+}
+
+.itemUnread {
+	background: var(--color-primary-bg);
+}
+
+.itemUnread:hover {
+	background: var(--color-primary-bg);
+}
+
+/* ── Kind accents (left border + title color) ── */
+.item-success {
+	border-left-color: var(--color-success);
+}
+
+.item-success .itemTitle {
+	color: var(--color-success);
+}
+
+.item-error {
+	border-left-color: var(--color-error);
+}
+
+.item-error .itemTitle {
+	color: var(--color-error);
+}
+
+.item-warning {
+	border-left-color: var(--color-warning);
+}
+
+.item-warning .itemTitle {
+	color: var(--color-warning);
+}
+
+.item-info {
+	border-left-color: var(--color-primary);
+}
+
+.item-info .itemTitle {
+	color: var(--color-primary);
+}
+
+/* ── Item content ── */
+.itemHeader {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--spacing-sm);
+	margin-bottom: 0.125rem;
+}
+
+.itemTitle {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-medium);
+}
+
+.itemTime {
+	font-size: var(--font-size-xs);
+	color: var(--color-text-muted);
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.itemMessage {
+	font-size: var(--font-size-xs);
+	color: var(--color-text-secondary);
+	margin: 0;
+	line-height: 1.4;
+}

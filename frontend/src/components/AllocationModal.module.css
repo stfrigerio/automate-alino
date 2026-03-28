@@ -1,0 +1,350 @@
+/* ── Overlay ─────────────────────────────────────── */
+.overlay {
+	position: fixed;
+	inset: 0;
+	background: var(--color-overlay);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: var(--z-modal);
+}
+
+/* ── Modal card ─────────────────────────────────── */
+.modal {
+	background: var(--color-background-secondary);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-xl);
+	max-width: 44rem;
+	width: 100%;
+	margin: 0 var(--spacing-md);
+	display: flex;
+	flex-direction: column;
+	max-height: 90vh;
+}
+
+/* ── Header ─────────────────────────────────────── */
+.header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	padding: var(--spacing-lg);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.headerLeft {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-xs);
+}
+
+.title {
+	font-size: var(--font-size-lg);
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-text);
+}
+
+.subtitle {
+	font-size: var(--font-size-sm);
+	color: var(--color-text-tertiary);
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+}
+
+.closeButton {
+	padding: var(--spacing-xs);
+	color: var(--color-text-tertiary);
+	border-radius: var(--radius-sm);
+	transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.closeButton:hover {
+	color: var(--color-text);
+	background: var(--color-background-tertiary);
+}
+
+/* ── Scrollable body ────────────────────────────── */
+.body {
+	padding: var(--spacing-lg);
+	overflow-y: auto;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-lg);
+}
+
+/* ── Section ────────────────────────────────────── */
+.sectionTitle {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-text-secondary);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin-bottom: var(--spacing-sm);
+}
+
+/* ── Project rows ───────────────────────────────── */
+.projectRows {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-sm);
+}
+
+.projectRow {
+	display: grid;
+	grid-template-columns: 1fr 6rem 10rem;
+	gap: var(--spacing-md);
+	align-items: center;
+	padding: var(--spacing-sm) var(--spacing-md);
+	background: var(--color-background);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-border);
+}
+
+.projectName {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-medium);
+	color: var(--color-text);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.projectCode {
+	font-size: var(--font-size-xs);
+	color: var(--color-text-tertiary);
+}
+
+.hoursInput {
+	width: 100%;
+	padding: var(--spacing-xs) var(--spacing-sm);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	font-size: var(--font-size-sm);
+	text-align: right;
+	background: var(--color-background-secondary);
+	color: var(--color-text);
+	transition: border-color var(--transition-fast);
+}
+
+.hoursInput:focus {
+	outline: none;
+	border-color: var(--color-border-focus);
+}
+
+.costDisplay {
+	font-size: var(--font-size-xs);
+	color: var(--color-text-tertiary);
+	text-align: right;
+	white-space: nowrap;
+}
+
+/* ── Non-project section ────────────────────────── */
+.nonProjectSection {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-sm);
+}
+
+.nonProjectHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.nonProjectRows {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-sm);
+}
+
+.nonProjectRow {
+	display: grid;
+	grid-template-columns: 1fr 6rem auto;
+	gap: var(--spacing-md);
+	align-items: center;
+	padding: var(--spacing-sm) var(--spacing-md);
+	background: var(--color-background);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-border);
+}
+
+.categorySelect {
+	width: 100%;
+	padding: var(--spacing-xs) var(--spacing-sm);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	font-size: var(--font-size-sm);
+	background: var(--color-background-secondary);
+	color: var(--color-text);
+	transition: border-color var(--transition-fast);
+}
+
+.categorySelect:focus {
+	outline: none;
+	border-color: var(--color-border-focus);
+}
+
+.removeRowButton {
+	padding: var(--spacing-xs);
+	color: var(--color-error-muted);
+	border-radius: var(--radius-sm);
+	transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.removeRowButton:hover {
+	color: var(--color-error);
+	background: var(--color-error-bg);
+}
+
+.addRowButton {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--spacing-xs);
+	padding: var(--spacing-xs) var(--spacing-sm);
+	font-size: var(--font-size-sm);
+	color: var(--color-primary);
+	border-radius: var(--radius-sm);
+	transition: background var(--transition-fast);
+}
+
+.addRowButton:hover {
+	background: var(--color-primary-bg);
+}
+
+/* ── Totals bar ─────────────────────────────────── */
+.totalsBar {
+	display: flex;
+	gap: var(--spacing-md);
+	padding: var(--spacing-md) var(--spacing-lg);
+	border-top: 1px solid var(--color-border);
+	font-size: var(--font-size-sm);
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.totalItem {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-xs);
+	color: var(--color-text-secondary);
+}
+
+.totalValue {
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-text);
+}
+
+.remainingBalanced {
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-success);
+}
+
+.remainingUnder {
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-warning);
+}
+
+.remainingOver {
+	font-weight: var(--font-weight-semibold);
+	color: var(--color-error);
+}
+
+/* ── Footer ─────────────────────────────────────── */
+.footer {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-sm);
+	padding: var(--spacing-md) var(--spacing-lg);
+	border-top: 1px solid var(--color-border);
+}
+
+.footerSpacer {
+	flex: 1;
+}
+
+.suggestButton {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--spacing-xs);
+	padding: var(--spacing-sm) var(--spacing-md);
+	font-size: var(--font-size-sm);
+	color: var(--color-primary);
+	border: 1px solid var(--color-primary);
+	border-radius: var(--radius-sm);
+	background: transparent;
+	transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.suggestButton:hover:not(:disabled) {
+	background: var(--color-primary-bg);
+}
+
+.suggestButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.cancelButton {
+	padding: var(--spacing-sm) var(--spacing-md);
+	font-size: var(--font-size-sm);
+	color: var(--color-text-secondary);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	background: transparent;
+	transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.cancelButton:hover {
+	background: var(--color-background-tertiary);
+	border-color: var(--color-border-hover);
+}
+
+.confirmButton {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--spacing-xs);
+	padding: var(--spacing-sm) var(--spacing-md);
+	font-size: var(--font-size-sm);
+	background: var(--color-primary);
+	color: var(--color-text-inverse);
+	border-radius: var(--radius-sm);
+	transition: background var(--transition-fast);
+}
+
+.confirmButton:hover:not(:disabled) {
+	background: var(--color-primary-hover);
+}
+
+.confirmButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* ── Loading state ──────────────────────────────── */
+.loadingContainer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--spacing-2xl);
+	color: var(--color-text-tertiary);
+	font-size: var(--font-size-sm);
+}
+
+/* ── Empty state for non-project rows ───────────── */
+.emptyHint {
+	font-size: var(--font-size-sm);
+	color: var(--color-text-muted);
+	padding: var(--spacing-sm) 0;
+}
+
+/* ── Spinner ────────────────────────────────────── */
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.spinner {
+	animation: spin 1s linear infinite;
+}
