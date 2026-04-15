@@ -4,12 +4,6 @@
 	gap: var(--spacing-xl);
 }
 
-.topRow {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
 .section {
 	/* Isolate each section */
 }

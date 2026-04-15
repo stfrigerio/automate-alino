@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   triageDocuments,
   triageStatus,
@@ -15,7 +15,7 @@ import type { TriageResult } from "../api/client";
 import type { Project, Lavoratore } from "../types";
 import { DropZone } from "../components/DropZone";
 import { Badge } from "../components/Badge";
-import { Check, AlertTriangle, X, FolderOpen, Loader2, ChevronDown, Trash2 } from "lucide-react";
+import { Check, AlertTriangle, X, FolderOpen, Loader2, ChevronDown, Trash2, Plus } from "lucide-react";
 import styles from "./DocumentTriage.module.css";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -37,6 +37,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function DocumentTriage() {
+  const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
   const [results, setResults] = useState<TriageResult[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -232,7 +233,7 @@ export default function DocumentTriage() {
                 {r.needs_action === "project_not_found" && (
                   <div className={styles.cardAlert}>
                     <p>Progetto nel documento: <strong>{r.progetto_nome_doc || r.progetto_codice_doc}</strong></p>
-                    <p>Nessun progetto corrispondente trovato. Assegna a un progetto esistente:</p>
+                    <p>Nessun progetto corrispondente trovato. Assegna a un progetto esistente o creane uno nuovo:</p>
                   </div>
                 )}
 
@@ -257,6 +258,24 @@ export default function DocumentTriage() {
                     >
                       Assegna
                     </button>
+                    {r.needs_action === "project_not_found" && (
+                      <>
+                        <span className={styles.cardActionSep}>oppure</span>
+                        <button
+                          onClick={() => {
+                            const params = new URLSearchParams();
+                            params.set("triage_id", r.id);
+                            if (r.progetto_nome_doc) params.set("prefill_nome", r.progetto_nome_doc);
+                            if (r.progetto_codice_doc) params.set("prefill_codice", r.progetto_codice_doc);
+                            navigate(`/projects/new?${params.toString()}`);
+                          }}
+                          className={styles.createProjectButton}
+                        >
+                          <Plus size={14} />
+                          Crea nuovo progetto
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>

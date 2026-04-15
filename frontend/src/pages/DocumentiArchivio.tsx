@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { triageHistory, bulkDeleteTriageDocuments, deleteTriageDocument, triageFileUrl } from "../api/client";
 import type { TriageResult } from "../api/client";
 import { Badge } from "../components/Badge";
-import { Breadcrumb } from "../components/Breadcrumb";
+import { useBreadcrumb } from "../context/BreadcrumbContext";
 import { Trash2, ChevronDown, X, FileText } from "lucide-react";
 import styles from "./DocumentiArchivio.module.css";
 
@@ -32,6 +32,8 @@ function formatDate(iso: string | undefined) {
 }
 
 export default function DocumentiArchivio() {
+  useBreadcrumb([{ label: "Home", to: "/" }, { label: "Archivio Documenti" }]);
+
   const [docs, setDocs] = useState<TriageResult[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -70,8 +72,6 @@ export default function DocumentiArchivio() {
 
   return (
     <div className={styles.page}>
-      <Breadcrumb items={[{ label: "Home", to: "/" }, { label: "Archivio Documenti" }]} />
-
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Archivio Documenti</h1>
@@ -131,9 +131,9 @@ export default function DocumentiArchivio() {
                       <td className={styles.td}>
                         <Badge variant="neutral">{CATEGORY_LABELS[d.categoria] ?? d.categoria}</Badge>
                       </td>
-                      <td className={styles.td} onClick={(e) => e.stopPropagation()}>
+                      <td className={styles.td}>
                         {d.matched_lavoratore_id ? (
-                          <Link to={`/lavoratori/${d.matched_lavoratore_id}`} className={styles.pill}>
+                          <Link to={`/lavoratori/${d.matched_lavoratore_id}`} className={styles.pill} onClick={(e) => e.stopPropagation()}>
                             <span className={styles.pillDot} />
                             {d.matched_lavoratore_nome || persona}
                           </Link>
@@ -145,9 +145,9 @@ export default function DocumentiArchivio() {
                         ) : "—"}
                       </td>
                       <td className={styles.td}>{d.mese || "—"}</td>
-                      <td className={styles.td} onClick={(e) => e.stopPropagation()}>
+                      <td className={styles.td}>
                         {d.matched_project_id ? (
-                          <Link to={`/projects/${d.matched_project_id}`} className={styles.pill}>
+                          <Link to={`/projects/${d.matched_project_id}`} className={styles.pill} onClick={(e) => e.stopPropagation()}>
                             <span className={styles.pillDot} />
                             {d.matched_project_nome}
                           </Link>
@@ -162,7 +162,7 @@ export default function DocumentiArchivio() {
                       <td className={styles.td}>
                         <Badge variant={esito.variant}>{esito.text}</Badge>
                       </td>
-                      <td className={styles.tdFile} onClick={(e) => e.stopPropagation()}>
+                      <td className={styles.tdFile}>
                         <button
                           className={styles.fileButton}
                           onClick={(e) => { e.stopPropagation(); setViewingDoc({ id: d.id, name: d.file_name }); }}
@@ -182,7 +182,7 @@ export default function DocumentiArchivio() {
                           <Trash2 size={14} />
                         </button>
                         {hasMotivo && (
-                          <ChevronDown size={18} className={`${styles.chevron} ${isExpanded ? styles.chevronOpen : ""}`} />
+                          <ChevronDown size={22} className={`${styles.chevron} ${isExpanded ? styles.chevronOpen : ""}`} />
                         )}
                       </td>
                     </tr>

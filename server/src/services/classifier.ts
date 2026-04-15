@@ -1,4 +1,6 @@
+import { extname } from "path";
 import { spawnClaude } from "./claude.js";
+import { readFile } from "../reader.js";
 import type { DocumentCategory } from "../../../shared/types.ts";
 
 const VALID_CATEGORIES: DocumentCategory[] = [
@@ -55,10 +57,27 @@ function parseClassifiedDoc(obj: any): ClassifiedDocument {
 }
 
 export async function classifyDocument(filePath: string): Promise<ClassificationResult> {
-  const prompt = `Leggi il file "${filePath}" usando il tool Read e classificalo.
-Questo file è stato caricato in un sistema di rendicontazione per progetti di finanziamento europeo/nazionale.
+  const ext = extname(filePath).toLowerCase();
 
-Categorie possibili:
+  // For non-PDF files, pre-extract content since Claude CLI's Read tool
+  // only reliably handles text and PDF files
+  let preExtractedText: string | null = null;
+  if (ext !== ".pdf") {
+    try {
+      const blocks = await readFile(filePath);
+      if (blocks?.length) {
+        preExtractedText = blocks
+          .filter((b) => b.type === "text")
+          .map((b) => (b as { type: "text"; text: string }).text)
+          .join("\n");
+        if (!preExtractedText.trim()) preExtractedText = null;
+      }
+    } catch {
+      // Fall through to Claude CLI Read
+    }
+  }
+
+  const categories = `Categorie possibili:
 - "busta_paga": cedolino/busta paga di un lavoratore
 - "timecard": foglio presenze / timesheet firmato
 - "f24": modello F24 per versamento ritenute/contributi
@@ -73,9 +92,9 @@ Categorie possibili:
 - "dichiarazione_irap": dichiarazione IRAP
 - "scheda_finanziaria": scheda finanziaria del progetto
 - "registri_presenze": registro presenze corsisti/partecipanti
-- "non_pertinente": documento che NON c'entra nulla con la rendicontazione
+- "non_pertinente": documento che NON c'entra nulla con la rendicontazione`;
 
-IMPORTANTE: Controlla se il file contiene PIU' documenti distinti (es. più buste paga di persone diverse, più timecard, più F24).
+  const jsonFormat = `IMPORTANTE: Controlla se il file contiene PIU' documenti distinti (es. più buste paga di persone diverse, più timecard, più F24).
 Indizi di documenti multipli: cambio di persona, cambio di mese, intestazioni ripetute, page break tra documenti diversi.
 
 Se il file contiene PIU' documenti distinti, rispondi con:
@@ -112,8 +131,32 @@ Se il file contiene UN SOLO documento, rispondi con:
 
 Rispondi SOLO con il JSON.`;
 
+  let prompt: string;
+  let claudeOpts: { allowedTools?: string[] } | undefined;
+
+  if (preExtractedText) {
+    prompt = `Classifica il seguente documento.
+Questo file ("${filePath}") è stato caricato in un sistema di rendicontazione per progetti di finanziamento europeo/nazionale.
+
+${categories}
+
+--- CONTENUTO DOCUMENTO ---
+${preExtractedText}
+--- FINE DOCUMENTO ---
+
+${jsonFormat}`;
+    claudeOpts = { allowedTools: [] };
+  } else {
+    prompt = `Leggi il file "${filePath}" usando il tool Read e classificalo.
+Questo file è stato caricato in un sistema di rendicontazione per progetti di finanziamento europeo/nazionale.
+
+${categories}
+
+${jsonFormat}`;
+  }
+
   try {
-    const raw = await spawnClaude(prompt);
+    const raw = await spawnClaude(prompt, claudeOpts);
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return { documenti_multipli: false, documento: FALLBACK_DOC };

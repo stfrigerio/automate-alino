@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getLavoratore } from "../api/client";
 import GlobalBustePaga from "./GlobalBustePaga";
-import { Breadcrumb } from "../components/Breadcrumb";
-import NavControls from "../components/NavControls";
+import { useBreadcrumb } from "../context/BreadcrumbContext";
 import styles from "./LavoratoreView.module.css";
 
 type LavoratoreDetail = {
@@ -23,17 +22,15 @@ export default function LavoratoreView() {
     if (id) getLavoratore(id).then(setLavoratore);
   }, [id]);
 
+  useBreadcrumb(lavoratore
+    ? [{ label: "Home", to: "/" }, { label: `${lavoratore.cognome} ${lavoratore.nome}` }]
+    : [{ label: "Home", to: "/" }]
+  );
+
   if (!lavoratore) return null;
 
   return (
     <div className={styles.page}>
-      <Breadcrumb
-        items={[
-          { label: "Home", to: "/" },
-          { label: `${lavoratore.cognome} ${lavoratore.nome}` },
-        ]}
-        end={<NavControls />}
-      />
 
       <div className={styles.header}>
         <h1 className={styles.title}>

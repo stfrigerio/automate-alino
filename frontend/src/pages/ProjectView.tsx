@@ -7,8 +7,7 @@ import PanoramicaTab from "./tabs/PanoramicaTab";
 import PersoneTab from "./tabs/PersoneTab";
 import TimecardTab from "./tabs/TimecardTab";
 import DocumentiTab from "./tabs/DocumentiTab";
-import { Breadcrumb } from "../components/Breadcrumb";
-import NavControls from "../components/NavControls";
+import { useBreadcrumb } from "../context/BreadcrumbContext";
 import { AnimatePresence, motion } from "motion/react";
 import { LayoutDashboard, Users, Clock, FileCheck, FolderKanban, Building2, Calendar } from "lucide-react";
 import { Badge } from "../components/Badge";
@@ -32,17 +31,12 @@ export default function ProjectView() {
     if (id) getProject(id).then(setProject).catch(console.error);
   }, [id]);
 
+  useBreadcrumb(project ? [{ label: "Home", to: "/" }, { label: project.nome }] : [{ label: "Home", to: "/" }]);
+
   if (!project) return <p className={styles.loading}>Caricamento...</p>;
 
   return (
     <div>
-      <Breadcrumb
-        items={[
-          { label: "Progetti", to: "/" },
-          { label: project.nome },
-        ]}
-        end={<NavControls />}
-      />
 
       <motion.div
         className={styles.header}

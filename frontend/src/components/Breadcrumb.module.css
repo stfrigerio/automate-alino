@@ -1,3 +1,9 @@
+.crumbGroup {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.125rem;
+}
+
 .nav {
 	display: inline-flex;
 	align-items: center;
@@ -34,10 +40,12 @@
 }
 
 .separator {
-	color: var(--color-border-hover);
-	width: 0.75rem;
-	height: 0.75rem;
+	color: var(--color-gold);
+	font-size: 0.75rem;
+	line-height: 1;
+	user-select: none;
 	flex-shrink: 0;
+	padding: 0 0.05rem;
 }
 
 .current {

@@ -3,17 +3,14 @@ import { FileText } from "lucide-react";
 import ProjectList from "./ProjectList";
 import LavoratoriList from "./LavoratoriList";
 import DocumentTriage from "./DocumentTriage";
-import NavControls from "../components/NavControls";
-import { Breadcrumb } from "../components/Breadcrumb";
+import { useBreadcrumb } from "../context/BreadcrumbContext";
 import styles from "./Homepage.module.css";
 
 export default function Homepage() {
+  useBreadcrumb([{ label: "Home", to: "/" }]);
+
   return (
     <div className={styles.page}>
-      <div className={styles.topRow}>
-        <Breadcrumb items={[{ label: "Home" }]} />
-        <NavControls />
-      </div>
       <section className={styles.section}>
         <DocumentTriage />
       </section>

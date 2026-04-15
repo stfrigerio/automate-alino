@@ -48,6 +48,10 @@
 	--color-accent-bg: #fdf2f4;
 	--color-accent: #b4637a;
 
+	/* ── Gold ────────────────────────────────────────── */
+	--color-gold: #c9a84c;
+	--color-gold-bg: rgba(201, 168, 76, 0.12);
+
 	/* ── Info ────────────────────────────────────────── */
 	--color-info: #b4637a;
 	--color-info-bg: #fdf2f4;
@@ -140,6 +144,10 @@
 
 	--color-accent-bg: rgba(180, 99, 122, 0.12);
 	--color-accent: #e8a0b4;
+
+	/* ── Gold ────────────────────────────────────────── */
+	--color-gold: #e8c96b;
+	--color-gold-bg: rgba(232, 201, 107, 0.12);
 
 	--color-info: #d4899e;
 	--color-info-bg: rgba(212, 137, 158, 0.12);

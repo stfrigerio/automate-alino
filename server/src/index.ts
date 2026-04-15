@@ -228,60 +228,99 @@ app.post("/api/documenti/triage", upload.array("files"), (req, res) => {
           }
         }
 
-        let needs_action = "none";
-        let esito = "pending";
-        if ((classified.categoria as string) === "non_pertinente") {
-          needs_action = "none";
-          esito = "non_pertinente";
-        } else if (classified.categoria === "busta_paga") {
-          if (matchedLavoratoreId) { needs_action = "none"; esito = "auto_assegnato"; }
-          else { needs_action = "assign_project"; }
-        } else if ((classified.progetto_nome || classified.progetto_codice) && !matchedProjectId) {
-          needs_action = "project_not_found";
-        } else if (!matchedProjectId) {
-          needs_action = "assign_project";
-        } else {
-          esito = "auto_assegnato";
-        }
-
-        db.prepare(`
-          UPDATE triage_log SET categoria = ?, persona_nome = ?, persona_cognome = ?, mese = ?,
-            progetto_nome_doc = ?, progetto_codice_doc = ?, matched_project_id = ?, matched_project_nome = ?,
-            matched_lavoratore_id = ?, matched_lavoratore_nome = ?, needs_action = ?, motivo = ?,
-            esito = ?, status = 'done'
-          WHERE id = ?
-        `).run(
-          classified.categoria, classified.persona_nome, classified.persona_cognome, classified.mese,
-          classified.progetto_nome, classified.progetto_codice, matchedProjectId, matchedProjectNome,
-          matchedLavoratoreId, matchedLavoratoreNome, needs_action, classified.motivo,
-          esito, id,
-        );
-
-        // Auto-process busta paga: parse and insert into buste_paga table
-        if (classified.categoria === "busta_paga" && esito === "auto_assegnato" && matchedLavoratoreId) {
+        // For busta_paga: always run parsePayslip and use its results for matching
+        if (classified.categoria === "busta_paga") {
           const triageRow = db.prepare("SELECT file_name, file_path FROM triage_log WHERE id = ?").get(id) as { file_name: string; file_path: string };
           try {
             const parsed = await parsePayslip(triageRow.file_path);
+
+            // Use parsePayslip results for more accurate person matching
+            if (parsed.nome || parsed.cognome) {
+              const payslipMatch = matchPersona(parsed.nome, parsed.cognome, allLavoratori as Persona[]);
+              if (payslipMatch.personaId) {
+                matchedLavoratoreId = payslipMatch.personaId;
+                const lav = allLavoratori.find((l) => l.id === payslipMatch.personaId);
+                matchedLavoratoreNome = lav ? `${lav.nome} ${lav.cognome}` : null;
+              }
+            }
+
             const finalMese = parsed.mese ?? classified.mese ?? "";
-            const existingBp = db.prepare(
-              "SELECT id FROM buste_paga WHERE lavoratore_id IS ? AND mese = ? AND file_name = ?",
-            ).get(matchedLavoratoreId, finalMese, triageRow.file_name) as { id: string } | undefined;
-            if (!existingBp) {
-              const bpId = randomUUID();
-              const oreGiornaliereJson = Array.isArray(parsed.ore_giornaliere) && parsed.ore_giornaliere.length > 0
-                ? JSON.stringify(parsed.ore_giornaliere) : null;
-              const dettaglioOreJson = parsed.dettaglio_ore && Object.keys(parsed.dettaglio_ore).length > 0
-                ? JSON.stringify(parsed.dettaglio_ore) : null;
-              db.prepare(`
-                INSERT INTO buste_paga (id, lavoratore_id, mese, file_path, file_name, ore_estratte, costo_orario_estratto, totale_estratto, nome_estratto, cognome_estratto, ore_giornaliere, dettaglio_ore, stato_parsing)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ok')
-              `).run(bpId, matchedLavoratoreId, finalMese, triageRow.file_path, triageRow.file_name,
-                parsed.ore_lavorate, parsed.costo_orario, parsed.totale, parsed.nome, parsed.cognome,
-                oreGiornaliereJson, dettaglioOreJson);
+            const esitoBp = matchedLavoratoreId ? "auto_assegnato" : "pending";
+            const needsActionBp = matchedLavoratoreId ? "none" : "assign_project";
+
+            db.prepare(`
+              UPDATE triage_log SET categoria = ?, persona_nome = ?, persona_cognome = ?, mese = ?,
+                progetto_nome_doc = ?, progetto_codice_doc = ?, matched_project_id = ?, matched_project_nome = ?,
+                matched_lavoratore_id = ?, matched_lavoratore_nome = ?, needs_action = ?, motivo = ?,
+                esito = ?, status = 'done'
+              WHERE id = ?
+            `).run(
+              "busta_paga", parsed.nome ?? classified.persona_nome, parsed.cognome ?? classified.persona_cognome, finalMese,
+              classified.progetto_nome, classified.progetto_codice, matchedProjectId, matchedProjectNome,
+              matchedLavoratoreId, matchedLavoratoreNome, needsActionBp, classified.motivo,
+              esitoBp, id,
+            );
+
+            // Insert into buste_paga if we have a matched lavoratore
+            if (matchedLavoratoreId) {
+              const existingBp = db.prepare(
+                "SELECT id FROM buste_paga WHERE lavoratore_id IS ? AND mese = ? AND file_name = ?",
+              ).get(matchedLavoratoreId, finalMese, triageRow.file_name) as { id: string } | undefined;
+              if (!existingBp) {
+                const bpId = randomUUID();
+                const oreGiornaliereJson = Array.isArray(parsed.ore_giornaliere) && parsed.ore_giornaliere.length > 0
+                  ? JSON.stringify(parsed.ore_giornaliere) : null;
+                const dettaglioOreJson = parsed.dettaglio_ore && Object.keys(parsed.dettaglio_ore).length > 0
+                  ? JSON.stringify(parsed.dettaglio_ore) : null;
+                db.prepare(`
+                  INSERT INTO buste_paga (id, lavoratore_id, mese, file_path, file_name, ore_estratte, costo_orario_estratto, totale_estratto, nome_estratto, cognome_estratto, ore_giornaliere, dettaglio_ore, stato_parsing)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ok')
+                `).run(bpId, matchedLavoratoreId, finalMese, triageRow.file_path, triageRow.file_name,
+                  parsed.ore_lavorate, parsed.costo_orario, parsed.totale, parsed.nome, parsed.cognome,
+                  oreGiornaliereJson, dettaglioOreJson);
+              }
             }
           } catch (parseErr) {
             console.error(`[triage] parsePayslip failed for ${id}:`, parseErr);
+            // Fall through to generic update below
+            db.prepare(`
+              UPDATE triage_log SET categoria = 'busta_paga', persona_nome = ?, persona_cognome = ?, mese = ?,
+                progetto_nome_doc = ?, progetto_codice_doc = ?, needs_action = 'assign_project', motivo = ?,
+                esito = 'errore', status = 'done'
+              WHERE id = ?
+            `).run(
+              classified.persona_nome, classified.persona_cognome, classified.mese,
+              classified.progetto_nome, classified.progetto_codice,
+              `Errore estrazione: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`, id,
+            );
           }
+        } else {
+          // Non-busta_paga documents
+          let needs_action = "none";
+          let esito = "pending";
+          if ((classified.categoria as string) === "non_pertinente") {
+            needs_action = "none";
+            esito = "non_pertinente";
+          } else if ((classified.progetto_nome || classified.progetto_codice) && !matchedProjectId) {
+            needs_action = "project_not_found";
+          } else if (!matchedProjectId) {
+            needs_action = "assign_project";
+          } else {
+            esito = "auto_assegnato";
+          }
+
+          db.prepare(`
+            UPDATE triage_log SET categoria = ?, persona_nome = ?, persona_cognome = ?, mese = ?,
+              progetto_nome_doc = ?, progetto_codice_doc = ?, matched_project_id = ?, matched_project_nome = ?,
+              matched_lavoratore_id = ?, matched_lavoratore_nome = ?, needs_action = ?, motivo = ?,
+              esito = ?, status = 'done'
+            WHERE id = ?
+          `).run(
+            classified.categoria, classified.persona_nome, classified.persona_cognome, classified.mese,
+            classified.progetto_nome, classified.progetto_codice, matchedProjectId, matchedProjectNome,
+            matchedLavoratoreId, matchedLavoratoreNome, needs_action, classified.motivo,
+            esito, id,
+          );
         }
       } catch (err) {
         db.prepare(`
@@ -1480,6 +1519,13 @@ app.get("/api/projects/:id/stats", (req, res) => {
 });
 
 // ──────────────────────────────────────────────────────────
+// Recover stale triage items stuck as 'pending' from a previous crash/restart
+db.prepare(`
+  UPDATE triage_log SET status = 'done', categoria = 'non_pertinente', esito = 'errore',
+    motivo = 'Classificazione interrotta (server riavviato)'
+  WHERE status = 'pending'
+`).run();
+
 const PORT = process.env.PORT ?? 3001;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

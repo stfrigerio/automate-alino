@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createProject, uploadLogos, createPersona, getTipologie, createCustomTipologia } from "../api/client";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { createProject, uploadLogos, createPersona, getTipologie, createCustomTipologia, assignTriageProject } from "../api/client";
 import { RUOLO_LABELS } from "../types";
 import type { RendicontazioneMode, RuoloPersonale, CreatePersonaRequest, Tipologia, ChecklistRules } from "../types";
 import { Trash2, Upload, ChevronDown } from "lucide-react";
-import { Breadcrumb } from "../components/Breadcrumb";
-import NavControls from "../components/NavControls";
+import { useBreadcrumb } from "../context/BreadcrumbContext";
 import styles from "./NewProject.module.css";
 
 type Step = 1 | 2 | 3;
@@ -61,7 +60,14 @@ function DocPreview({ tipologia }: { tipologia: Tipologia }) {
 }
 
 export default function NewProject() {
+  useBreadcrumb([{ label: "Home", to: "/" }, { label: "Nuovo Progetto" }]);
+
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const triageId = searchParams.get("triage_id");
+  const prefillNome = searchParams.get("prefill_nome");
+  const prefillCodice = searchParams.get("prefill_codice");
+
   const [step, setStep] = useState<Step>(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,8 +90,8 @@ export default function NewProject() {
   }, []);
 
   // Step 1
-  const [nome, setNome] = useState("");
-  const [codice, setCodice] = useState("");
+  const [nome, setNome] = useState(prefillNome ?? "");
+  const [codice, setCodice] = useState(prefillCodice ?? "");
   const [ente, setEnte] = useState("");
   const [attivita, setAttivita] = useState("");
   const [dataInizio, setDataInizio] = useState("");
@@ -193,6 +199,10 @@ export default function NewProject() {
         const { _key, ...data } = p;
         await createPersona(projectId, data);
       }
+      // If we came from triage, assign the document to the newly created project
+      if (triageId) {
+        await assignTriageProject(triageId, projectId);
+      }
       navigate(`/projects/${projectId}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Errore nel salvataggio persone");
@@ -202,13 +212,6 @@ export default function NewProject() {
 
   return (
     <div>
-      <Breadcrumb
-        items={[
-          { label: "Progetti", to: "/" },
-          { label: "Nuovo Progetto" },
-        ]}
-        end={<NavControls />}
-      />
       <h1 className={styles.title}>Nuovo Progetto</h1>
       <p className={styles.stepInfo}>
         Step {step} di 3 —{" "}

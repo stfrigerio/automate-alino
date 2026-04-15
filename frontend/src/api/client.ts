@@ -335,6 +335,13 @@ export const bulkDeleteTriageDocuments = (ids: string[]) =>
     body: JSON.stringify({ ids }),
   });
 
+export const assignTriageProject = (id: string, projectId: string) =>
+  request<{ ok: boolean }>(`${API}/documenti/triage/${id}/commit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ project_id: projectId }),
+  });
+
 export const triageFileUrl = (id: string) => `${API}/documenti/triage/${id}/file`;
 
 export const commitTriageDocument = (id: string, data: {
